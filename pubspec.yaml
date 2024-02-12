@@ -36,8 +36,17 @@ dependencies:
   cupertino_icons: ^1.0.2
   signals: ^3.0.0
   shared_preferences: ^2.2.2
-  easy_localization: ^3.0.3
   flutter_native_splash: ^2.3.9
+  flutter_localizations:
+    sdk: flutter
+  intl: any
+  dio: ^5.4.0
+  freezed: ^2.4.6
+  freezed_annotation: ^2.4.1
+  flutter_riverpod: ^2.4.10
+  riverpod_annotation: ^2.3.4
+  flutter_hooks: ^0.20.5
+  hooks_riverpod: ^2.4.10
 
 dev_dependencies:
   flutter_test:
@@ -49,6 +58,11 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
+  build_runner: ^2.4.8
+  json_serializable: ^6.7.1
+  custom_lint: ^0.6.0
+  riverpod_generator: ^2.3.9
+  riverpod_lint: ^2.3.9
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -59,6 +73,7 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+  generate: true
 
   # To add assets to your application, add an assets section, like this:
   # assets:
@@ -90,5 +105,3 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
-  assets:
-    - assets/translations/
