@@ -43,10 +43,12 @@ dependencies:
   dio: ^5.4.0
   freezed: ^2.4.6
   freezed_annotation: ^2.4.1
-  flutter_riverpod: ^2.4.10
-  riverpod_annotation: ^2.3.4
   flutter_hooks: ^0.20.5
-  hooks_riverpod: ^2.4.10
+  fl_query_hooks: ^1.0.0
+  fl_query: ^1.0.0
+  fl_query_connectivity_plus_adapter: ^0.1.0
+  get_it: ^7.6.7
+  form_builder_validators: ^9.1.0
 
 dev_dependencies:
   flutter_test:
@@ -61,8 +63,6 @@ dev_dependencies:
   build_runner: ^2.4.8
   json_serializable: ^6.7.1
   custom_lint: ^0.6.0
-  riverpod_generator: ^2.3.9
-  riverpod_lint: ^2.3.9
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

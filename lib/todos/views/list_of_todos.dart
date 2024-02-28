@@ -1,65 +1,94 @@
+import 'package:dio/dio.dart';
+import 'package:fl_query_hooks/fl_query_hooks.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_starter/todos/provider/todo_provider.dart';
-import 'package:flutter_starter/todos/views/add_todo.dart';
-import 'package:flutter_starter/todos/views/example_dropdown.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_starter/extentions/context_extention.dart';
+import 'package:flutter_starter/todos/models/todo_model.dart';
+import 'package:flutter_starter/todos/views/add_todo.dart';
+import 'package:flutter_starter/helpers/injection_container.dart';
+import 'package:signals/signals_flutter.dart';
 
-class TodoList extends ConsumerStatefulWidget {
+import '../../stores/theme.dart';
+import '../../widgets/with_indicator.dart';
+import '../repositories/todo_repository.dart';
+
+class TodoList extends HookWidget {
   const TodoList({super.key});
 
   @override
-  TodoListState createState() => TodoListState();
-}
-
-class TodoListState extends ConsumerState<TodoList> {
-  int limit = 2;
-
-  void _decrease() {
-    setState(() {
-      limit++;
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final todos = ref.watch(todosProvider(limit: limit, offset: 3));
+    final limit = useState(5);
 
-    return Scaffold(
-        backgroundColor: Colors.blueGrey[300],
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            context.navigate(AddTodo());
-          },
-          child: const Icon(Icons.add),
-        ),
-        appBar: AppBar(
-          title: Text(context.l18n.welcome(343, 'hello')),
-          centerTitle: true,
-          backgroundColor: Colors.amber[200],
-        ),
-        body: Column(
+    final query = useQuery<List<Todo>, DioException>(
+      'todos-${limit.value}',
+      () => locator<TodoRepository>()
+          .getTodos(queryParameters: {'_limit': limit.value}),
+      initial: [],
+    );
+
+    void navigateToAddTodoScreen() async {
+      final shouldRefresh = await context.navigate<bool>(AddTodo());
+
+      if (shouldRefresh == true) {
+        query.refresh();
+      }
+    }
+
+    return WithIndicatorScaffold(
+      query: query,
+      backgroundColor: Colors.blueGrey[300],
+      floatingActionButton: FloatingActionButton(
+        onPressed: navigateToAddTodoScreen,
+        child: const Icon(Icons.add),
+      ),
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: const Text('Todos'),
+        actions: [
+          Watch((_) {
+            return IconButton(
+              onPressed: changeTheme,
+              icon: Icon(isDarkMode.value ? Icons.light_mode : Icons.dark_mode),
+            );
+          }),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: Column(
           children: [
-            const DropdownMenuExample(),
+            Text(limit.value.toString()),
             ElevatedButton(
-                onPressed: _decrease, child: const Text('Increase limit')),
-            Expanded(
-              child: todos.when(
-                  data: (items) => ListView.builder(
-                        itemCount: items.length,
-                        itemBuilder: (context, index) {
-                          final item = items[index];
-
-                          return ListTile(
-                            title: Text('${item.id}'),
-                            subtitle: Text(item.title),
-                          );
-                        },
-                      ),
-                  error: (error, stackTrace) => Text('error: $error'),
-                  loading: () => const Text('loading')),
-            ),
+                onPressed: () {
+                  limit.value++;
+                },
+                child: const Text('Limit')),
+            Visibility(
+              visible: query.data != null,
+              replacement: Container(
+                margin: const EdgeInsets.only(top: 20),
+                child: const Text('No todos',
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.white,
+                    )),
+              ),
+              child: Expanded(
+                child: ListView.builder(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    itemCount: query.data?.length,
+                    itemBuilder: (context, int index) {
+                      final item = query.data![index];
+                      return ListTile(
+                        title: Text('${item.id}'),
+                        subtitle: Text(item.title),
+                      );
+                    }),
+              ),
+            )
           ],
-        ));
+        ),
+      ),
+    );
   }
 }
